@@ -13,7 +13,7 @@ pipeline{
         stage('detener/limpiar'){
             steps{
                 script{
-                def docker_running = sh(returnStatus: true, script: 'docker inspect sitio_web | grep "Running"')
+                def docker_running = sh(returnStatus: true, script: 'sudo docker inspect sitio_web | grep "Running"')
                 if (docker_running) {
             			sh '''
                         #sudo service nginx restart 
