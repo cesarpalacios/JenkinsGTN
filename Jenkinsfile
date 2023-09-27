@@ -4,7 +4,7 @@ pipeline{
         string(name: 'name_container', defaultValue: 'sitio_web', description: 'Nombre del container')
         string(name: 'name_imagen', defaultValue: 'php', description: 'Nombre de la imagen')
         string(name: 'tag_imagen', defaultValue: '7.4-apache', description: 'etiqueta y/o version de la imagen')
-        string(name: 'puerto_imagen', defaultValue: '8090', description: 'puerto de la imagen')
+        string(name: 'puerto_imagen', defaultValue: '80', description: 'puerto de la imagen')
     }
 
 
@@ -12,16 +12,18 @@ pipeline{
 
         stage('detener/limpiar'){
             steps{
+                script{
                 def docker_running = sh(returnStatus: true, script: 'docker ps')
                 if (docker_running) {
-			sh '''
-			echo 'esta'
-			'''
-		} else {
-			sh '''
-                        echo 'no esta'
-                        '''
-		}
+        			sh '''
+        			echo 'esta'
+        			'''
+        		} else {
+        			sh '''
+                                echo 'no esta'
+                                '''
+        		    }
+                }
                 sh '''
                 #sudo service nginx restart 
                 #sudo docker compose down
