@@ -12,6 +12,16 @@ pipeline{
 
         stage('detener/limpiar'){
             steps{
+                def docker_running = sh(returnStatus: true, script: 'docker ps')
+                if (docker_running) {
+			sh '''
+			echo 'esta'
+			'''
+		} else {
+			sh '''
+                        echo 'no esta'
+                        '''
+		}
                 sh '''
                 #sudo service nginx restart 
                 #sudo docker compose down
