@@ -1,5 +1,5 @@
 pipeline{
-    agent{label "Local"}
+    agent{label "principal"}
     parameters{
         string(name: 'name_container', defaultValue: 'sitio_web', description: 'Nombre del container')
         string(name: 'name_imagen', defaultValue: 'php', description: 'Nombre de la imagen')
