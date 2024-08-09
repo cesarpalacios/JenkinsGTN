@@ -1,5 +1,9 @@
 pipeline{
-    agent any
+    agent {
+        node {
+            label 'produccion1'
+        }
+    }
     parameters{
         string(name: 'name_container', defaultValue: 'sitio_web', description: 'Nombre del container')
         string(name: 'name_imagen', defaultValue: 'php', description: 'Nombre de la imagen')
