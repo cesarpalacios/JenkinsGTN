@@ -1,7 +1,7 @@
 pipeline{
     agent {
         node {
-            label 'App'
+            label 'principal1'
         }
     }
     parameters{
@@ -22,8 +22,8 @@ pipeline{
             			sh '''
                         #sudo service nginx restart 
                         #sudo docker compose down
-                        #sudo docker stop ${name_container}
-                        #sudo docker rm ${name_container}
+                        sudo docker stop ${name_container}
+                        sudo docker rm ${name_container}
                         sudo docker system prune -f
                         sudo docker images purge
                         '''
