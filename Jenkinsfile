@@ -1,7 +1,7 @@
 pipeline{
     agent {
         node {
-            label 'produccion1'
+            label 'App'
         }
     }
     parameters{
