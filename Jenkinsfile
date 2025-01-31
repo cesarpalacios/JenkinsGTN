@@ -25,6 +25,8 @@ pipeline{
                         '''
         		    } else {
             			sh '''
+                        sudo docker system prune -f
+                        sudo docker images purge
                         echo 'no esta'
                         '''
         		    }
