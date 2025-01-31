@@ -139,7 +139,3 @@ Si encuentras algún problema durante el despliegue:
 ¡Y eso es todo! Ahora tienes una infraestructura desplegada en AWS con Jenkins y Apache listos para usar. Si tienes alguna pregunta o necesitas más ayuda, no dudes en abrir un issue en este repositorio. ¡Feliz despliegue! 🚀
 
 ---
-
-## 📜 Licencia
-
-Este proyecto está bajo la licencia **MIT**. Consulta el archivo `LICENSE` para más detalles.
