@@ -91,18 +91,25 @@ Resources:
         UserData:
           Fn::Base64: !Sub |
             #!/bin/bash
-            # Instalar dependencias necesarias
-            apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-            sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable"
+            #!/bin/bash
+            # Actualizar el sistema
             sudo apt-get update -y
-            sudo apt-get install -y docker-ce docker-ce-cli containerd.io
-            sudo systemctl start docker
-            sudo systemctl enable docker
-            # Descargar y ejecutar Jenkins en Docker
-            sudo docker pull jenkins/jenkins:lts
-            sudo docker run -d -p 8080:8080 -p 50000:50000 --name jenkins -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts
-         
+            sudo apt-get upgrade -y
+
+            # Instalar dependencias necesarias
+            sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common fontconfig openjdk-17-jre
+
+            # Agregar la clave GPG y el repositorio de Jenkins
+            curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo gpg --dearmor -o /usr/share/keyrings/jenkins-keyring.gpg
+            echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.gpg] https://pkg.jenkins.io/debian-stable binary/" | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+            # Actualizar e instalar Jenkins
+            sudo apt-get update -y
+            sudo apt-get install -y jenkins
+
+            # Iniciar y habilitar el servicio de Jenkins
+            sudo systemctl start jenkins
+            sudo systemctl enable jenkins
 
     instanciaApache:
      Type: AWS::EC2::Instance
@@ -132,4 +139,4 @@ Resources:
             git clone https://github.com/cesarpalacios/JenkinsGTN.git
             cd JenkinsGTN
             docker compose up -d 
-
+            sudo apt-get install openjdk-17-jre -y
