@@ -15,11 +15,9 @@ pipeline{
         stage('detener/limpiar'){
             steps{
                 script{
-                def docker_running = sh(returnStatus: true, script: 'sudo docker ps')
+                def docker_running = sh(returnStatus: true, script: 'sudo docker ps -q -f name=${name_container}')
                 if (docker_running) {
             			sh '''
-                        #sudo service nginx restart 
-                        #sudo docker compose down
                         sudo docker stop ${name_container}
                         sudo docker rm ${name_container}
                         sudo docker system prune -f
