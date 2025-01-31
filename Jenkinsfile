@@ -31,6 +31,7 @@ pipeline{
 
                     // Limpieza del sistema Docker (esto se ejecutará independientemente de si el contenedor existía o no)
                     sh '''
+                        sudo docker stop ${name_container}
                         sudo docker system prune -f
                         sudo docker images purge
                     '''
