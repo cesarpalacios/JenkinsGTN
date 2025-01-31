@@ -15,21 +15,25 @@ pipeline{
         stage('detener/limpiar'){
             steps{
                 script{
-                def docker_running = sh(returnStatus: true, script: 'sudo docker ps -q -f name=${name_container}')
-                if (docker_running) {
-            			sh '''
-                        sudo docker stop ${name_container}
-                        sudo docker rm ${name_container}
+                    // Verifica si el contenedor específico está en ejecución
+                    def containerExists = sh(returnStatus: true, script: "sudo docker ps -q -f name=${name_container}")
+                    
+                    if (containerExists == 0) {
+                        // Si el contenedor existe, detén y elimínalo
+                        sh """
+                            sudo docker stop ${name_container}
+                            sudo docker rm ${name_container}
+                        """
+                    } else {
+                        // Si el contenedor no existe, imprime un mensaje
+                        echo "El contenedor ${name_container} no está en ejecución."
+                    }
+
+                    // Limpieza del sistema Docker (esto se ejecutará independientemente de si el contenedor existía o no)
+                    sh '''
                         sudo docker system prune -f
                         sudo docker images purge
-                        '''
-        		    } else {
-            			sh '''
-                        sudo docker system prune -f
-                        sudo docker images purge
-                        echo 'no esta'
-                        '''
-        		    }
+                    '''
                 }
                 
             }
