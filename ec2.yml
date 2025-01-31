@@ -1,0 +1,135 @@
+Resources:
+    VPC:
+      Type: AWS::EC2::VPC
+      Properties:
+        CidrBlock: 10.0.0.0/16
+        EnableDnsSupport: 'true'
+        EnableDnsHostnames: 'true'
+        Tags:
+        - Key: name
+          Value: vpc-trabajo
+
+    InternetGateway:
+      Type: AWS::EC2::InternetGateway
+
+    AttachGateway:
+      Type: AWS::EC2::VPCGatewayAttachment
+      Properties:
+        VpcId: !Ref VPC
+        InternetGatewayId: !Ref InternetGateway
+
+    RouteTable:
+      Type: AWS::EC2::RouteTable
+      Properties:
+        VpcId: !Ref VPC
+
+    Route:
+      Type: AWS::EC2::Route
+      DependsOn: AttachGateway
+      Properties:
+        RouteTableId: !Ref RouteTable
+        DestinationCidrBlock: 0.0.0.0/0
+        GatewayId: !Ref InternetGateway
+
+    Subnet:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId: !Ref VPC
+        CidrBlock: 10.0.1.0/24
+        MapPublicIpOnLaunch: true
+
+    SubnetRouteTableAssociation:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        SubnetId: !Ref Subnet
+        RouteTableId: !Ref RouteTable
+
+    GrupoSeguridadJenkins:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: Grupo de Seguridad de Jenkins
+        VpcId: !Ref VPC
+        SecurityGroupIngress:
+          - IpProtocol: tcp
+            FromPort: 22
+            ToPort: 22
+            CidrIp: 0.0.0.0/0
+          - IpProtocol: tcp
+            FromPort: 8080
+            ToPort: 8080
+            CidrIp: 0.0.0.0/0
+
+    GrupoSeguridadApache:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: Grupo de Seguridad de Apache
+        VpcId: !Ref VPC
+        SecurityGroupIngress:
+          - IpProtocol: tcp
+            FromPort: 22
+            ToPort: 22
+            CidrIp: 0.0.0.0/0
+          - IpProtocol: tcp
+            FromPort: 80
+            ToPort: 80
+            CidrIp: 0.0.0.0/0
+          
+
+    instanciaJenkins:
+      Type: AWS::EC2::Instance
+      Properties:
+        ImageId: ami-04b4f1a9cf54c11d0
+        InstanceType: t2.micro
+        KeyName: prueba
+        SubnetId: !Ref Subnet
+        SecurityGroupIds:
+          - !Ref GrupoSeguridadJenkins
+        Tags:
+          - Key: Name
+            Value: instanciaJenkins
+
+        UserData:
+          Fn::Base64: !Sub |
+            #!/bin/bash
+            # Instalar dependencias necesarias
+            apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+            sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable"
+            sudo apt-get update -y
+            sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+            sudo systemctl start docker
+            sudo systemctl enable docker
+            # Descargar y ejecutar Jenkins en Docker
+            sudo docker pull jenkins/jenkins:lts
+            sudo docker run -d -p 8080:8080 -p 50000:50000 --name jenkins -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts
+         
+
+    instanciaApache:
+     Type: AWS::EC2::Instance
+     Properties: 
+        ImageId: ami-04b4f1a9cf54c11d0
+        InstanceType: t2.micro
+        KeyName: prueba
+        SubnetId: !Ref Subnet
+        SecurityGroupIds:
+          - !Ref GrupoSeguridadApache
+        Tags:
+          - Key: Name
+            Value: instanciaApache
+
+        UserData:
+          Fn::Base64: !Sub |
+            #!/bin/bash
+            apt-get update -y
+            apt-get upgrade -y
+            apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+            sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable"
+            sudo apt-get update -y
+            sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+            sudo systemctl start docker
+            sudo systemctl enable docker
+            git clone https://github.com/cesarpalacios/JenkinsGTN.git
+            cd JenkinsGTN
+            docker compose up -d 
+
